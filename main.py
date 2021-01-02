@@ -1,15 +1,16 @@
 from typing import List
 
-from fastapi import  FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 import models, schemas
 from database import SessionLocal, engine
 
-models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
+
+# Creating the database tables
+models.Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
         CORSMiddleware,
@@ -29,22 +30,19 @@ def get_db():
         db.close()
 
 
-@app.post("api/register")
-def register(db: Session, user: schemas.Student):
-    student = models.Student(username=user.username)
+@app.post("/api/register/")
+def register(username: str, password: str, db: Session = Depends(get_db)):
+    student = models.Student(username=username)
     student.hash_password(password)
     db.add(student)
     db.commit()
     db.refresh(student)
-    return db_user
+    return {"message": "Student registered successfully"} 
 
 
-@app.post("api/login")
-def login(db: Session, user: schemas.Student):
-    username = user.username
-    password = user.password
-
-    student = db.query(models.Student).filter(models.User.username == username).first()
+@app.post("/api/login/")
+def login(username: str, password: str, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.username == username).first()
     if student.verify_password(password):
         return {"message": "Login Successfull", "status": 200}
     else:
