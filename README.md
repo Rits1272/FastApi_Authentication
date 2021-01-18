@@ -4,6 +4,7 @@ A ready to use authentication system devekoped using FastAPI framework
 This code exposes the following endpoints:
  - `/api/register/`
  - `/api/login/`
+ - `/api/valid/`
  
  To test **register** api:
  - ```bash
