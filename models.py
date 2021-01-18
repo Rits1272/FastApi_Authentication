@@ -13,6 +13,7 @@ class Student(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(122), unique=True, index=True)
     hashed_password = Column(String)
+    role = Column(String(20), index=True)
     jwt_token = Column(String(1024))
 
     def hash_password(self, password):

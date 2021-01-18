@@ -31,8 +31,8 @@ def get_db():
 
 
 @app.post("/api/register/")
-def register(username: str, password: str, db: Session = Depends(get_db)):
-    student = models.Student(username=username)
+def register(username: str, role: str, password: str, db: Session = Depends(get_db)):
+    student = models.Student(username=username, role=role)
     student.hash_password(password)
     student.create_access_token(data={"sub": username})
     print(student.jwt_token) 
@@ -49,4 +49,13 @@ def login(username: str, password: str, db: Session = Depends(get_db)):
         return {"message": "Login Successfull", "status": 200, "token": student.jwt_token}
     else:
         return {"message": "Invalid Credentials", "status": 503}
+
+
+@app.post("/api/valid/")
+def check(token: str, db: Session = Depends(get_db)):
+    student = db.query(models.Student).filter(models.Student.jwt_token == token).first()
+    if student:
+        return {"message" : "Yes", "role": student.role}
+    return {"message" : "No"}
+
 
