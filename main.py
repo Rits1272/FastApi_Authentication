@@ -34,6 +34,8 @@ def get_db():
 def register(username: str, password: str, db: Session = Depends(get_db)):
     student = models.Student(username=username)
     student.hash_password(password)
+    student.create_access_token(data={"sub": username})
+    print(student.jwt_token) 
     db.add(student)
     db.commit()
     db.refresh(student)
@@ -44,7 +46,7 @@ def register(username: str, password: str, db: Session = Depends(get_db)):
 def login(username: str, password: str, db: Session = Depends(get_db)):
     student = db.query(models.Student).filter(models.Student.username == username).first()
     if student.verify_password(password):
-        return {"message": "Login Successfull", "status": 200}
+        return {"message": "Login Successfull", "status": 200, "token": student.jwt_token}
     else:
         return {"message": "Invalid Credentials", "status": 503}
 
